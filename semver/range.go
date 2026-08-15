@@ -266,12 +266,12 @@ type partial struct {
 func parsePartial(s string) (partial, error) {
 	var p partial
 	s = strings.TrimSpace(s)
+	if i := strings.IndexByte(s, '+'); i >= 0 {
+		s = s[:i] // build metadata is ignored in ranges
+	}
 	if i := strings.IndexByte(s, '-'); i >= 0 {
 		preStr := s[i+1:]
 		s = s[:i]
-		if j := strings.IndexByte(preStr, '+'); j >= 0 {
-			preStr = preStr[:j]
-		}
 		ids := strings.Split(preStr, ".")
 		for _, id := range ids {
 			if !isValidIdentifier(id, true) {
@@ -279,8 +279,6 @@ func parsePartial(s string) (partial, error) {
 			}
 		}
 		p.pre = ids
-	} else if i := strings.IndexByte(s, '+'); i >= 0 {
-		s = s[:i]
 	}
 	if s == "" || s == "*" {
 		return p, nil
